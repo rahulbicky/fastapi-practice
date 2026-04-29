@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, computed_field
 from typing import Literal, Annotated
@@ -10,6 +11,14 @@ with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8501"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 tier_1_cities = ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune"]
 tier_2_cities = [
@@ -83,5 +92,7 @@ def predict_premium(data: UserInput):
 
     prediction = model.predict(input_df)[0]
 
-    return JSONResponse(status_code=200, content={'predicted_category': prediction})
+    return JSONResponse(status_code=200, content={
+        "predicted_category": prediction
+    })
 
